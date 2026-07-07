@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.relay">
+
+    <!-- Internet access (browsing, API calls) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- WiFi scanning — needed to read SSIDs and BSSIDs nearby -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <!-- Location is required by Android to scan WiFi (OS restriction since Android 9) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Background location — needed to auto-cut sessions when phone screen is off -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Hotspot / WiFi sharing control (host mode) -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions"
+        xmlns:tools="http://schemas.android.com/tools"/>
+
+    <!-- Keep CPU alive while a session is running (prevents cutoff missing) -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Foreground service — keeps the session timer alive when app is minimised -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+    <!-- Receive boot event so host sharing auto-restarts after phone reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:label="Relay"
+        android:roundIcon="@drawable/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Relay"
+        android:networkSecurityConfig="@xml/network_security_config">
+
+        <!-- Main entry screen (landing: Connect or Share) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Guest screen: scan nearby networks, buy time -->
+        <activity android:name=".ConnectActivity" android:exported="false"/>
+
+        <!-- Host screen: set price, toggle sharing, see earnings -->
+        <activity android:name=".ShareActivity" android:exported="false"/>
+
+        <!-- Session screen: countdown timer shown to guest while active -->
+        <activity android:name=".SessionActivity" android:exported="false"/>
+
+        <!-- Payment screen: M-Pesa / card checkout WebView -->
+        <activity android:name=".PaymentActivity" android:exported="false"/>
+
+        <!-- Foreground service: keeps session alive + cuts off at expiry -->
+        <service
+            android:name=".SessionService"
+            android:foregroundServiceType="connectedDevice"
+            android:exported="false"/>
+
+        <!-- Boot receiver: restart host sharing after phone reboots -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
